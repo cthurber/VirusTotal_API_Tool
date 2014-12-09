@@ -47,7 +47,6 @@ def md5sum(filename):
           break
       m.update(data)
   return m.hexdigest() 
-
           
 def parse(it, md5, verbose, jsondump):
   if it['response_code'] == 0:
@@ -90,7 +89,7 @@ def main():
   if options.search or options.jsondump or options.verbose:
     parse(vt.getReport(md5), md5 ,options.verbose, options.jsondump)
   if options.rescan:
-    vt.getReport(md5)
+    vt.rescan(md5)
 
 if __name__ == '__main__':
     main()
