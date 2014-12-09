@@ -47,12 +47,22 @@ def md5sum(filename):
           break
       m.update(data)
   return m.hexdigest() 
+
           
 def parse(it, md5, verbose, jsondump):
   if it['response_code'] == 0:
     print md5 + " -- Not Found in VT"
     return 0
-  print "\n\tResults for MD5: ",it['md5'],"\n\n\tDetected by: ",it['positives'],'/',it['total'],'\n\tSophos Detection:',it['scans']['Sophos']['result'] ,'\n\tKaspersky Detection:',it['scans']['Kaspersky']['result'], '\n\tTrendMicro Detection:',it['scans']['TrendMicro']['result'],'\n\tScanned on:',it['scan_date']
+  print "\n\tResults for MD5: ",it['md5'],"\n\n\tDetected by: ",it['positives'],'/',it['total'],'\n'
+  if 'Sophos' in it['scans']:
+    print '\tSophos Detection:',it['scans']['Sophos']['result'],'\n'
+  if 'Kaspersky' in it['scans']:
+    print '\tKaspersky Detection:',it['scans']['Kaspersky']['result'], '\n'
+  if 'ESET-NOD32' in it['scans']:
+    print '\tESET Detection:',it['scans']['ESET-NOD32']['result'],'\n'
+
+  print '\tScanned on:',it['scan_date']
+  
   if jsondump == True:
     jsondumpfile = open("VTDL" + md5 + ".json", "w")
     pprint(it, jsondumpfile)
@@ -80,7 +90,7 @@ def main():
   if options.search or options.jsondump or options.verbose:
     parse(vt.getReport(md5), md5 ,options.verbose, options.jsondump)
   if options.rescan:
-    vt.rescan(md5)
+    vt.getReport(md5)
 
 if __name__ == '__main__':
     main()
