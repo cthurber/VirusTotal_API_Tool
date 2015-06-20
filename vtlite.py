@@ -9,10 +9,24 @@
 import json, urllib, urllib2, argparse, hashlib, re, sys
 from pprint import pprint
 
+def keySetup(apikey):
+    if len(apikey) == 64:
+        with open('.apikey','w') as keyfile:
+            pprint(apikey,keyfile)
+        print "\n\tAPI key stored.\n"
+    else:
+        print "\n\t Error: Invalid API key"
+        sys.exit(1)
+
 def loadAPIKey():
-    with open('api.key','r') as keyfile:
-        key = keyfile.readline().strip('\n')
-        return key
+    try:
+        with open('.apikey','r') as keyfile:
+            key = keyfile.readline().strip('\n').strip("''")
+            return key
+    except:
+        print "\n\t Error: Could not read API key."
+        print "\t Please run again with '-k' to setup your API key.\n"
+        sys.exit(1)
 
 class vtAPI():
     def __init__(self):
@@ -20,17 +34,12 @@ class vtAPI():
         self.base = 'https://www.virustotal.com/vtapi/v2/'
 
     def getReport(self,md5):
-        if len(self.api) == 64:
-            param = {'resource':md5,'apikey':self.api}
-            url = self.base + "file/report"
-            data = urllib.urlencode(param)
-            result = urllib2.urlopen(url,data)
-            jdata =  json.loads(result.read())
-            return jdata
-        else:
-            print "\n\t Error: Could not read API key."
-            print "\t Please create a file named 'api.key' with your key in plain text."
-            sys.exit(1)
+        param = {'resource':md5,'apikey':self.api}
+        url = self.base + "file/report"
+        data = urllib.urlencode(param)
+        result = urllib2.urlopen(url,data)
+        jdata =  json.loads(result.read())
+        return jdata
 
     def rescan(self,md5):
         param = {'resource':md5,'apikey':self.api}
@@ -41,7 +50,6 @@ class vtAPI():
 
 
 # Md5 Function
-
 def checkMD5(checkval):
   if re.match(r"([a-fA-F\d]{32})", checkval) == None:
     md5 = md5sum(checkval)
@@ -91,10 +99,13 @@ def main():
   opt.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="Turn on verbosity of VT reports")
   opt.add_argument("-j", "--jsondump", action="store_true",help="Dumps the full VT report to file (VTDLXXX.json)")
   opt.add_argument("-r", "--rescan",action="store_true", help="Force Rescan with Current A/V Definitions")
+  opt.add_argument("-k", "--addkey",action="store_true", help="Add your api key")
   if len(sys.argv)<=2:
     opt.print_help()
     sys.exit(1)
   options= opt.parse_args()
+  if options.addkey:
+    keySetup(options.HashorPath)
   vt=vtAPI()
   md5 = checkMD5(options.HashorPath)
   if options.search or options.jsondump or options.verbose:
