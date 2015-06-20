@@ -19,7 +19,7 @@ License: Do whatever you want with it :)
 Usage is as follows with an example of a basic search +  hitting all of
 the switches below:
 
-usage: vt.py [-h] [-s] [-v] [-j] [-d] [-p] [-r] HashorPath
+usage: vt.py [-h] [-s] [-v] [-j] [-d] [-p] [-r] [-k] HashorPath
 
 Search and Download from VirusTotal
 
@@ -34,6 +34,7 @@ optional arguments:
  -d, --download  Download File from Virustotal (VTDLXXX.danger)
  -p, --pcap      Download Network Traffic (VTDLXXX.pcap)
  -r, --rescan    Force Rescan with Current A/V Definitions
+ -k, --addkey    Add your API key
 
 Example Basic Scan:
 
