@@ -3,24 +3,34 @@
 # Built on VT Test Script from: Adam Meyers ~ CrowdStrike
 # Rewirtten / Modified / Personalized: Chris Clark ~ GD Fidelis CyberSecurity
 # If things are broken let me know chris@xenosec.org
-# No Licence or warranty expressed or implied, use however you wish! 
+# No Licence or warranty expressed or implied, use however you wish!
 
 import json, urllib, urllib2, argparse, hashlib, re, sys
 from pprint import pprint
 
+def loadAPIKey():
+    with open('api.key','r') as keyfile:
+        key = keyfile.readline().strip('\n')
+        return key
+
 class vtAPI():
     def __init__(self):
-        self.api = '<----InsertVT-Private-API-Key---->'
+        self.api = loadAPIKey()
         self.base = 'https://www.virustotal.com/vtapi/v2/'
-    
+
     def getReport(self,md5):
-        param = {'resource':md5,'apikey':self.api,'allinfo': '1'}
-        url = self.base + "file/report"
-        data = urllib.urlencode(param)
-        result = urllib2.urlopen(url,data)
-        jdata =  json.loads(result.read())
-        return jdata
-    
+        if len(self.api) == 64:
+            param = {'resource':md5,'apikey':self.api}
+            url = self.base + "file/report"
+            data = urllib.urlencode(param)
+            result = urllib2.urlopen(url,data)
+            jdata =  json.loads(result.read())
+            return jdata
+        else:
+            print "\n\t Error: Could not read API key."
+            print "\t Please create a file named 'api.key' with your key in plain text."
+            sys.exit(1)
+
     def downloadFile(self,md5,name):
       try:
         param = {'hash':md5,'apikey':self.api}
@@ -67,7 +77,7 @@ def checkMD5(checkval):
   if re.match(r"([a-fA-F\d]{32})", checkval) == None:
     md5 = md5sum(checkval)
     return md5.upper()
-  else: 
+  else:
     return checkval.upper()
 
 def md5sum(filename):
@@ -78,8 +88,8 @@ def md5sum(filename):
       if not data:
           break
       m.update(data)
-  return m.hexdigest() 
-          
+  return m.hexdigest()
+
 def parse(it, md5, verbose, jsondump):
   if it['response_code'] == 0:
     print md5 + " -- Not Found in VT"
