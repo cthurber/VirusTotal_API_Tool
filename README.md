@@ -1,16 +1,18 @@
 ## Information
 This is a simple tool to utilize the basic functionality of the Private API From Virus Total, with this tool you can eaisly scan a hash or file (script will automatically hash the file and submit the HASH to VT not the file). You can download malware based on hash, download pcaps, write the full VT Json report to file, and force a rescan of a previously uploaded file with new AV definitions. Advanced queries and bulk downloads can be accomplished via VT Provided Scripts available on the Intelligence portal. (or a bash loop if you want to bulk DL with this)
 
-NOTE: You need your own premium VT API to use this tool. API Key Goes on Line 13! 
+NOTE: You need your own premium VT API to use this tool. API Key Goes on Line 13!
 
 NOTE2: If you have a free VT Public API (you do) then you can use VTlite.py with limited functionality (Check Hash/Path/Rescan/DownloadJson/VerboseDetections) four checks per minute are allowed.
 
 ## Authors & Licence
-Orginal Script Author: Adam Meyers
+Original Script Author: Adam Meyers
 
-Rewirtten & Modified: Chris Clark
+Rewritten & Modified: Chris Clark
 
-License: Do whatever you want with it :) 
+API from File, Public Key Throttling: Chris Thurber
+
+License: Do whatever you want with it :)
 
 ## Example
 <pre>
@@ -37,16 +39,16 @@ Example Basic Scan:
 
 xen0ph0n@pir8ship:~/tools$ python vt.py ../../VirtualBox_Share/wsusservice.dll -s
 
-      Results for MD5:  92d37a92138659fa75f45ccb87242910 
+      Results for MD5:  92d37a92138659fa75f45ccb87242910
 
-      Detected by:  30 / 43 
-      Sophos Detection: Troj/Briba-A 
-      Kaspersky Detection: Backdoor.Win32.Agent.clfe 
-      TrendMicro Detection: BKDR_BRIBA.A 
-      Scanned on: 2012-09-28 02:44:37 
-      First Seen: 2012-08-15 12:36:02 
-      Last Seen: 2012-09-28 02:44:37 
-      Unique Sources 3 
+      Detected by:  30 / 43
+      Sophos Detection: Troj/Briba-A
+      Kaspersky Detection: Backdoor.Win32.Agent.clfe
+      TrendMicro Detection: BKDR_BRIBA.A
+      Scanned on: 2012-09-28 02:44:37
+      First Seen: 2012-08-15 12:36:02
+      Last Seen: 2012-09-28 02:44:37
+      Unique Sources 3
       Submission Names:
             92d37a92138659fa75f45ccb87242910
             wsusservice.dll_
@@ -59,16 +61,16 @@ Example Verbose Scan + Download + Pcap + Json Save + Force Rescan:
 
 xen0ph0n@pir8ship:~/tools$ python vt.py 287f3dda64b830a5ac5a6df3266f7d08 -pdvjr
 
-      Results for MD5:  287f3dda64b830a5ac5a6df3266f7d08 
+      Results for MD5:  287f3dda64b830a5ac5a6df3266f7d08
 
-      Detected by:  38 / 46 
-      Sophos Detection: Troj/Hurgyu-A 
-      Kaspersky Detection: Trojan-Dropper.Win32.Dapato.bnnu 
-      TrendMicro Detection: TROJ_GEN.RCBC8HQ 
-      Scanned on: 2013-03-25 21:38:35 
-      First Seen: 2012-09-25 09:14:13 
-      Last Seen: 2012-09-25 09:14:13 
-      Unique Sources 1 
+      Detected by:  38 / 46
+      Sophos Detection: Troj/Hurgyu-A
+      Kaspersky Detection: Trojan-Dropper.Win32.Dapato.bnnu
+      TrendMicro Detection: TROJ_GEN.RCBC8HQ
+      Scanned on: 2013-03-25 21:38:35
+      First Seen: 2012-09-25 09:14:13
+      Last Seen: 2012-09-25 09:14:13
+      Unique Sources 1
       Submission Names:
             7DkduxxH
 
