@@ -2,25 +2,36 @@
 # Virus Total API Integration Script
 # Built on VT Test Script from: Adam Meyers ~ CrowdStrike
 # Rewirtten / Modified / Personalized: Chris Clark ~ GD Fidelis CyberSecurity
+# API Key from file: Chris Thurber
 # If things are broken let me know chris@xenosec.org
-# No Licence or warranty expressed or implied, use however you wish! 
+# No Licence or warranty expressed or implied, use however you wish!
 
 import json, urllib, urllib2, argparse, hashlib, re, sys
 from pprint import pprint
 
+def loadAPIKey():
+    with open('api.key','r') as keyfile:
+        key = keyfile.readline().strip('\n')
+        return key
+
 class vtAPI():
     def __init__(self):
-        self.api = '<--------------PUBLIC-API-KEY-GOES-HERE----->'
+        self.api = loadAPIKey()
         self.base = 'https://www.virustotal.com/vtapi/v2/'
-    
+
     def getReport(self,md5):
-        param = {'resource':md5,'apikey':self.api}
-        url = self.base + "file/report"
-        data = urllib.urlencode(param)
-        result = urllib2.urlopen(url,data)
-        jdata =  json.loads(result.read())
-        return jdata
-    
+        if len(self.api) == 64:
+            param = {'resource':md5,'apikey':self.api}
+            url = self.base + "file/report"
+            data = urllib.urlencode(param)
+            result = urllib2.urlopen(url,data)
+            jdata =  json.loads(result.read())
+            return jdata
+        else:
+            print "\n\t Error: Could not read API key."
+            print "\t Please create a file named 'api.key' with your key in plain text."
+            sys.exit(1)
+
     def rescan(self,md5):
         param = {'resource':md5,'apikey':self.api}
         url = self.base + "file/rescan"
@@ -35,7 +46,7 @@ def checkMD5(checkval):
   if re.match(r"([a-fA-F\d]{32})", checkval) == None:
     md5 = md5sum(checkval)
     return md5.upper()
-  else: 
+  else:
     return checkval.upper()
 
 def md5sum(filename):
@@ -46,8 +57,8 @@ def md5sum(filename):
       if not data:
           break
       m.update(data)
-  return m.hexdigest() 
-          
+  return m.hexdigest()
+
 def parse(it, md5, verbose, jsondump):
   if it['response_code'] == 0:
     print md5 + " -- Not Found in VT"
@@ -61,7 +72,7 @@ def parse(it, md5, verbose, jsondump):
     print '\tESET Detection:',it['scans']['ESET-NOD32']['result'],'\n'
 
   print '\tScanned on:',it['scan_date']
-  
+
   if jsondump == True:
     jsondumpfile = open("VTDL" + md5 + ".json", "w")
     pprint(it, jsondumpfile)
