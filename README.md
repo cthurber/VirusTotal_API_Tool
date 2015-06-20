@@ -10,7 +10,7 @@ Original Script Author: Adam Meyers
 
 Rewritten & Modified: Chris Clark
 
-API from File, Public Key Throttling: Chris Thurber
+API Key Setup: Chris Thurber
 
 License: Do whatever you want with it :)
 
