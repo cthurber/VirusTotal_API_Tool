@@ -4,7 +4,7 @@
 # Rewirtten / Modified / Personalized: Chris Clark ~ GD Fidelis CyberSecurity
 # API Key from file: Chris Thurber
 # If things are broken let me know chris@xenosec.org
-# No Licence or warranty expressed or implied, use however you wish!
+# No License or warranty expressed or implied, use however you wish!
 
 import json, urllib, urllib2, argparse, hashlib, re, sys
 from pprint import pprint
@@ -47,7 +47,6 @@ class vtAPI():
         data = urllib.urlencode(param)
         result = urllib2.urlopen(url,data)
         print "\n\tVirus Total Rescan Initiated for -- " + md5 + " (Requery in 10 Mins)"
-
 
 # Md5 Function
 def checkMD5(checkval):
@@ -92,10 +91,25 @@ def parse(it, md5, verbose, jsondump):
     for x in it['scans']:
      print '\t', x,'\t' if len(x) < 7 else '','\t' if len(x) < 14 else '','\t',it['scans'][x]['detected'], '\t',it['scans'][x]['result']
 
+def getHashes(mdFile):
+  hashes = []
+  with open(mdFile, 'r') as mdf:
+    for line in mdf:
+      row = line.strip('\n')
+      if len(str(row)) == 32:
+        hashes.append(row)
+  return hashes
+
+def parseMultipleMDF(hashArray, verbose, jsondump):
+  for hashkey in hashArray:
+    vt = vtAPI()
+    parse(vt.getReport(hashkey), hashkey, verbose, jsondump)
+
 def main():
   opt=argparse.ArgumentParser(description="Search and Download from VirusTotal")
   opt.add_argument("HashorPath", help="Enter the MD5/SHA1/256 Hash or Path to File")
-  opt.add_argument("-s", "--search", action="store_true", help="Search VirusTotal")
+  opt.add_argument("-s", "--search", action="store_true", help="Search VirusTotal for MD5/SHA hash")
+  opt.add_argument("-m", "--multisearch", action="store_true", help="Search VirusTotal for multiple MD5/SHAs")
   opt.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="Turn on verbosity of VT reports")
   opt.add_argument("-j", "--jsondump", action="store_true",help="Dumps the full VT report to file (VTDLXXX.json)")
   opt.add_argument("-r", "--rescan",action="store_true", help="Force Rescan with Current A/V Definitions")
@@ -108,7 +122,9 @@ def main():
     keySetup(options.HashorPath)
   vt=vtAPI()
   md5 = checkMD5(options.HashorPath)
-  if options.search or options.jsondump or options.verbose:
+  if options.search and options.multisearch and ".csv" in str(options.HashorPath):
+    parseMultipleMDF(getHashes(options.HashorPath), options.verbose, options.jsondump)
+  elif options.search or options.jsondump or options.verbose:
     parse(vt.getReport(md5), md5 ,options.verbose, options.jsondump)
   if options.rescan:
     vt.rescan(md5)
