@@ -1,40 +1,43 @@
 ## Information
-This is a simple tool to utilize the basic functionality of the Private API From Virus Total, with this tool you can eaisly scan a hash or file (script will automatically hash the file and submit the HASH to VT not the file). You can download malware based on hash, download pcaps, write the full VT Json report to file, and force a rescan of a previously uploaded file with new AV definitions. Advanced queries and bulk downloads can be accomplished via VT Provided Scripts available on the Intelligence portal. (or a bash loop if you want to bulk DL with this)
+This is a simple tool to utilize the basic functionality of the Private API From Virus Total, with this tool you can easily scan a hash or file (script will automatically hash the file and submit the HASH to VT not the file). You can download malware based on hash, download pcaps, write the full VT JSON report to file, and force a rescan of a previously uploaded file with new AV definitions. Advanced queries and bulk downloads can be accomplished via VT Provided Scripts available on the Intelligence portal. (or a bash loop if you want to bulk DL with this)
 
-NOTE: You need your own premium VT API to use this tool. API Key Goes on Line 13!
+NOTE: You need your own premium VT API to use this tool. Set it up with '-k' option and your key.
 
-NOTE2: If you have a free VT Public API (you do) then you can use VTlite.py with limited functionality (Check Hash/Path/Rescan/DownloadJson/VerboseDetections) four checks per minute are allowed.
+NOTE2: If you have a free VT Public API (you do) then you can use VTlite.py with limited functionality (Check Hash/Path/Rescan/DownloadJson/VerboseDetections) four checks per minute are allowed. Load balancing has been built-in for multiple searches; single searches may still return errors.
 
 ## Authors & Licence
 Original Script Author: Adam Meyers
 
 Rewritten & Modified: Chris Clark
 
-API Key Setup: Chris Thurber
+API Key Setup & Multiple MD5 Search: Chris Thurber
 
 License: Do whatever you want with it :)
 
 ## Example
 <pre>
-Usage is as follows with an example of a basic search +  hitting all of
+Usage is as follows with an example of a basic search + hitting all of
 the switches below:
 
-usage: vt.py [-h] [-s] [-v] [-j] [-d] [-p] [-r] [-k] HashorPath
+usage: vt.py [-h] [-s] [-v] [-j] [-d] [-p] [-r] [-k] [-m] HashorPath/CSV File
 
 Search and Download from VirusTotal
 
 positional arguments:
  HashorPath      Enter the MD5 Hash or Path to File
+ CSV             Add a CSV with as many hashes as you like
 
 optional arguments:
- -h, --help      show this help message and exit
- -s, --search    Search VirusTotal
- -v, --verbose   Turn on verbosity of VT reports
- -j, --jsondump  Dumps the full VT report to file (VTDLXXX.json)
- -d, --download  Download File from Virustotal (VTDLXXX.danger)
- -p, --pcap      Download Network Traffic (VTDLXXX.pcap)
- -r, --rescan    Force Rescan with Current A/V Definitions
- -k, --addkey    Add your API key
+ -h, --help        Show this help message and exit
+ -s, --search      Search VirusTotal
+ -v, --verbose     Turn on verbosity of VT reports
+ -j, --jsondump    Dumps the full VT report to file (VTDLXXX.json)
+ -d, --download    Download File from Virustotal (VTDLXXX.danger)
+ -p, --pcap        Download Network Traffic (VTDLXXX.pcap)
+ -r, --rescan      Force Rescan with Current A/V Definitions
+ -k, --addkey      Add your API key
+ -c, --cleandump   Prints 'clean' console output to file
+ -m, --multisearch Lookup multiple SHA/MD5's by using a CSV as a parameter
 
 Example Basic Scan:
 
