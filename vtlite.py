@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # Virus Total API Integration Script
 # Built on VT Test Script from: Adam Meyers ~ CrowdStrike
-# Rewirtten / Modified / Personalized: Chris Clark ~ GD Fidelis CyberSecurity
-# API Key Setup / Multiple MD5 Lookup: Chris Thurber
+# Rewirtten / Modified / Personalized: Chris Clark ~ Palo Alto Networks
+# API Key Setup / Multiple MD5 Lookup (and load balancing for free API): Chris Thurber
 # If things are broken let me know chris@xenosec.org
 # No License or warranty expressed or implied, use however you wish!
 
