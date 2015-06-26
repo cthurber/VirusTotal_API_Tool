@@ -2,11 +2,11 @@
 # Virus Total API Integration Script
 # Built on VT Test Script from: Adam Meyers ~ CrowdStrike
 # Rewirtten / Modified / Personalized: Chris Clark ~ GD Fidelis CyberSecurity
-# API Key from file: Chris Thurber
+# API Key Setup / Multiple MD5 Lookup: Chris Thurber
 # If things are broken let me know chris@xenosec.org
 # No License or warranty expressed or implied, use however you wish!
 
-import json, urllib, urllib2, argparse, hashlib, re, sys
+import time, datetime, json, urllib, urllib2, argparse, hashlib, re, sys
 from pprint import pprint
 
 def keySetup(apikey):
@@ -27,6 +27,16 @@ def loadAPIKey():
         print "\n\t Error: Could not read API key."
         print "\t Please run again with '-k' to setup your API key.\n"
         sys.exit(1)
+
+def dateParse():
+    dt = datetime.datetime.now()
+    day = str(dt.day)
+    month = str(dt.month)
+    if len(day) < 2:
+        day = "0"+day
+    if len(month) < 2:
+        month = "0"+month
+    return month+day+str(dt.year)
 
 class vtAPI():
     def __init__(self):
@@ -66,25 +76,55 @@ def md5sum(filename):
       m.update(data)
   return m.hexdigest()
 
-def parse(it, md5, verbose, jsondump):
+#TODO convert tuples to strings...
+def parse(it, md5, verbose, jsondump, cleandump):
+  dumpArray = []
   if it['response_code'] == 0:
-    print md5 + " -- Not Found in VT"
+    notfoundstr = str(md5 + " -- Not Found in VT")
+    print notfoundstr
+    dumpArray.append(notfoundstr)
     return 0
-  print "\n\tResults for MD5: ",it['md5'],"\n\n\tDetected by: ",it['positives'],'/',it['total'],'\n'
-  if 'Sophos' in it['scans']:
-    print '\tSophos Detection:',it['scans']['Sophos']['result'],'\n'
-  if 'Kaspersky' in it['scans']:
-    print '\tKaspersky Detection:',it['scans']['Kaspersky']['result'], '\n'
-  if 'ESET-NOD32' in it['scans']:
-    print '\tESET Detection:',it['scans']['ESET-NOD32']['result'],'\n'
+  resultstr = str("\n\tResults for MD5: "+str(it['md5']))
+  detectedstr = str("\n\n\tDetected by: "+str(it['positives'])+'/'+str(it['total'])+'\n')
+  dumpArray.append(resultstr)
+  dumpArray.append(detectedstr)
+  print resultstr
+  print detectedstr
 
-  print '\tScanned on:',it['scan_date']
+
+  if 'Sophos' in it['scans']:
+    sophosstr = str("\tSophos Detection:"+str(it['scans']['Sophos']['result'])+"\n")
+    dumpArray.append(sophosstr)
+    print sophosstr
+  if 'Kaspersky' in it['scans']:
+    kasperskystr = str('\tKaspersky Detection:'+str(it['scans']['Kaspersky']['result'])+'\n')
+    dumpArray.append(kasperskystr)
+    print kasperskystr
+  if 'ESET-NOD32' in it['scans']:
+    ESETNODstr = str('\tESET Detection:'+str(it['scans']['ESET-NOD32']['result'])+'\n')
+    dumpArray.append(ESETNODstr)
+    print ESETNODstr
+
+  scannedonstr = str('\tScanned on:'+str(it['scan_date']))
+  dumpArray.append(scannedonstr)
+  print scannedonstr
+
+  blank = " "
+  dumpArray.append(blank)
 
   if jsondump == True:
-    jsondumpfile = open("VTDL" + md5 + ".json", "w")
+    jsondumpfile = open("VTDL-" + md5 + ".json", "w")
     pprint(it, jsondumpfile)
     jsondumpfile.close()
     print "\n\tJSON Written to File -- " + "VTDL" + md5 + ".json"
+
+  if cleandump == True:
+    dumpfile = "VTDL-"+dateParse()+".txt"
+    with open(dumpfile,'a') as df:
+      for item in dumpArray:
+        line = item.strip('\t\n')
+        pprint(line,df)
+    df.close()
 
   if verbose == True:
     print '\n\tVerbose VirusTotal Information Output:\n'
@@ -95,15 +135,28 @@ def getHashes(mdFile):
   hashes = []
   with open(mdFile, 'r') as mdf:
     for line in mdf:
-      row = line.strip('\n')
+      row = line.strip('\n').strip(',')
       if len(str(row)) == 32:
         hashes.append(row)
+  mdf.close()
   return hashes
 
-def parseMultipleMDF(hashArray, verbose, jsondump):
-  for hashkey in hashArray:
-    vt = vtAPI()
-    parse(vt.getReport(hashkey), hashkey, verbose, jsondump)
+def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
+  calls = 0
+  for keyhash in hashArray:
+    print "running...", calls
+    if calls == 0 or (calls%4) != 0:
+      vt = vtAPI()
+      parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
+      calls += 1
+    else:
+      seconds = 61
+      while seconds > 0:
+        sys.stdout.write('\r --- Waiting '+str(seconds)+' seconds... ---')
+        sys.stdout.flush()
+        time.sleep(1)
+        seconds -= 1
+      parseMultipleMDF(hashArray, verbose, jsondump, cleandump)
 
 def main():
   opt=argparse.ArgumentParser(description="Search and Download from VirusTotal")
@@ -111,7 +164,8 @@ def main():
   opt.add_argument("-s", "--search", action="store_true", help="Search VirusTotal for MD5/SHA hash")
   opt.add_argument("-m", "--multisearch", action="store_true", help="Search VirusTotal for multiple MD5/SHAs")
   opt.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="Turn on verbosity of VT reports")
-  opt.add_argument("-j", "--jsondump", action="store_true",help="Dumps the full VT report to file (VTDLXXX.json)")
+  opt.add_argument("-c", "--cleandump", action="store_true",help="Dumps the clean VT report to file (VTDL-XXX.txt)")
+  opt.add_argument("-j", "--jsondump", action="store_true",help="Dumps the full VT report to file (VTDL-XXX.json)")
   opt.add_argument("-r", "--rescan",action="store_true", help="Force Rescan with Current A/V Definitions")
   opt.add_argument("-k", "--addkey",action="store_true", help="Add your api key")
   if len(sys.argv)<=2:
@@ -123,9 +177,9 @@ def main():
   vt=vtAPI()
   md5 = checkMD5(options.HashorPath)
   if options.search and options.multisearch and ".csv" in str(options.HashorPath):
-    parseMultipleMDF(getHashes(options.HashorPath), options.verbose, options.jsondump)
+    parseMultipleMDF(getHashes(options.HashorPath), options.verbose, options.jsondump, options.cleandump)
   elif options.search or options.jsondump or options.verbose:
-    parse(vt.getReport(md5), md5 ,options.verbose, options.jsondump)
+    parse(vt.getReport(md5), md5 ,options.verbose, options.jsondump, options.cleandump)
   if options.rescan:
     vt.rescan(md5)
 
