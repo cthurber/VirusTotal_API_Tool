@@ -76,7 +76,6 @@ def md5sum(filename):
       m.update(data)
   return m.hexdigest()
 
-#TODO convert tuples to strings...
 def parse(it, md5, verbose, jsondump, cleandump):
   dumpArray = []
   if it['response_code'] == 0:
@@ -85,7 +84,7 @@ def parse(it, md5, verbose, jsondump, cleandump):
     dumpArray.append(notfoundstr)
     return 0
   resultstr = str("\n\tResults for MD5: "+str(it['md5']))
-  detectedstr = str("\n\n\tDetected by: "+str(it['positives'])+'/'+str(it['total'])+'\n')
+  detectedstr = str("\n\tDetected by: "+str(it['positives'])+'/'+str(it['total'])+'\n')
   dumpArray.append(resultstr)
   dumpArray.append(detectedstr)
   print resultstr
@@ -136,15 +135,13 @@ def getHashes(mdFile):
   with open(mdFile, 'r') as mdf:
     for line in mdf:
       row = line.strip('\n').strip(',')
-      if len(str(row)) == 32:
-        hashes.append(row)
+      hashes.append(row)
   mdf.close()
   return hashes
 
 def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
   calls = 0
   for keyhash in hashArray:
-    print "running...", calls
     if calls == 0 or (calls%4) != 0:
       vt = vtAPI()
       parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
@@ -152,11 +149,12 @@ def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
     else:
       seconds = 61
       while seconds > 0:
-        sys.stdout.write('\r --- Waiting '+str(seconds)+' seconds... ---')
+        sys.stdout.write('\r\n\t --- Waiting '+str(seconds)+' seconds... ---')
         sys.stdout.flush()
         time.sleep(1)
         seconds -= 1
-      parseMultipleMDF(hashArray, verbose, jsondump, cleandump)
+      sys.stdout.flush()
+      parseMultipleMDF(hashArray[calls:], verbose, jsondump, cleandump)
 
 def main():
   opt=argparse.ArgumentParser(description="Search and Download from VirusTotal")
