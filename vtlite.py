@@ -82,42 +82,43 @@ def md5sum(filename):
 def parse(it, md5, verbose, jsondump, cleandump):
   dumpArray = []
   if it['response_code'] == 0:
-    notfoundstr = str(md5 + " -- Not Found in VT")
+    notfoundstr = str("\n\t"+md5 + " -- Not Found in VT")
     print notfoundstr
     dumpArray.append(notfoundstr)
     return 0
   resultstr = str("\n\tResults for MD5: "+str(it['md5']))
-  resultsline = resultstr+'\n'
   detectedstr = str("\n\tDetected by: "+str(it['positives'])+'/'+str(it['total']))
+
   detectedline = detectedstr+'\n'
-  dumpArray.append(resultsline)
-  dumpArray.append(detectedstr)
+  resultsline = resultstr+'\n'
   print resultstr
   print detectedstr
 
   if 'Sophos' in it['scans']:
     sophosstr = str("\tSophos Detection:"+str(it['scans']['Sophos']['result']))
     sophosline = sophosstr+'\n'
-    dumpArray.append(sophosline)
     print sophosstr
   if 'Kaspersky' in it['scans']:
     kasperskystr = str('\tKaspersky Detection:'+str(it['scans']['Kaspersky']['result']))
     kasperskyline = kasperskystr+'\n'
-    dumpArray.append(kasperskyline)
     print kasperskystr
   if 'ESET-NOD32' in it['scans']:
     ESETNODstr = str('\tESET Detection:'+str(it['scans']['ESET-NOD32']['result']))
     ESETNODline = ESETNODstr+'\n'
-    dumpArray.append(ESETNODline)
     print ESETNODstr
 
   scannedonstr = str('\tScanned on:'+str(it['scan_date']))
-  dumpArray.append(scannedonstr)
   print scannedonstr
 
-  blank = " "
-  dumpArray.append(blank)
-
+  if int(it['positives']) > 0:
+    dumpArray.append(resultsline)
+    dumpArray.append(detectedstr)
+    dumpArray.append(sophosline)
+    dumpArray.append(kasperskyline)
+    dumpArray.append(ESETNODline)
+    dumpArray.append(scannedonstr)
+    blank = " "
+    dumpArray.append(blank)
 
   if jsondump == True:
     jsondumpfile = open("./VTDL-" + md5 + ".json", "w")
