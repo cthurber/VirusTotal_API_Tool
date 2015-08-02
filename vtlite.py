@@ -6,12 +6,14 @@
 # If things are broken let me know chris@xenosec.org
 # No License or warranty expressed or implied, use however you wish!
 
-import time, datetime, json, urllib, urllib2, argparse, hashlib, re, sys
+import time, datetime, json, urllib, urllib2, argparse, hashlib, re, sys, os
 from pprint import pprint
 
+homeDirectory = str(os.path.expanduser('~'))
 def keySetup(apikey):
     if len(apikey) == 64:
-        with open('.apikey','w') as keyfile:
+        apiPath = homeDirectory+'/.vt_apikey'
+        with open(apiPath,'w') as keyfile:
             pprint(apikey,keyfile)
         print "\n\tAPI key stored.\n"
     else:
@@ -20,7 +22,8 @@ def keySetup(apikey):
 
 def loadAPIKey():
     try:
-        with open('.apikey','r') as keyfile:
+        apiPath = homeDirectory+'/.vt_apikey'
+        with open(apiPath,'r') as keyfile:
             key = keyfile.readline().strip('\n').strip("''")
             return key
     except:
@@ -84,24 +87,28 @@ def parse(it, md5, verbose, jsondump, cleandump):
     dumpArray.append(notfoundstr)
     return 0
   resultstr = str("\n\tResults for MD5: "+str(it['md5']))
-  detectedstr = str("\n\tDetected by: "+str(it['positives'])+'/'+str(it['total'])+'\n')
-  dumpArray.append(resultstr)
+  resultsline = resultstr+'\n'
+  detectedstr = str("\n\tDetected by: "+str(it['positives'])+'/'+str(it['total']))
+  detectedline = detectedstr+'\n'
+  dumpArray.append(resultsline)
   dumpArray.append(detectedstr)
   print resultstr
   print detectedstr
 
-
   if 'Sophos' in it['scans']:
-    sophosstr = str("\tSophos Detection:"+str(it['scans']['Sophos']['result'])+"\n")
-    dumpArray.append(sophosstr)
+    sophosstr = str("\tSophos Detection:"+str(it['scans']['Sophos']['result']))
+    sophosline = sophosstr+'\n'
+    dumpArray.append(sophosline)
     print sophosstr
   if 'Kaspersky' in it['scans']:
-    kasperskystr = str('\tKaspersky Detection:'+str(it['scans']['Kaspersky']['result'])+'\n')
-    dumpArray.append(kasperskystr)
+    kasperskystr = str('\tKaspersky Detection:'+str(it['scans']['Kaspersky']['result']))
+    kasperskyline = kasperskystr+'\n'
+    dumpArray.append(kasperskyline)
     print kasperskystr
   if 'ESET-NOD32' in it['scans']:
-    ESETNODstr = str('\tESET Detection:'+str(it['scans']['ESET-NOD32']['result'])+'\n')
-    dumpArray.append(ESETNODstr)
+    ESETNODstr = str('\tESET Detection:'+str(it['scans']['ESET-NOD32']['result']))
+    ESETNODline = ESETNODstr+'\n'
+    dumpArray.append(ESETNODline)
     print ESETNODstr
 
   scannedonstr = str('\tScanned on:'+str(it['scan_date']))
@@ -111,14 +118,15 @@ def parse(it, md5, verbose, jsondump, cleandump):
   blank = " "
   dumpArray.append(blank)
 
+
   if jsondump == True:
-    jsondumpfile = open("VTDL-" + md5 + ".json", "w")
+    jsondumpfile = open("./VTDL-" + md5 + ".json", "w")
     pprint(it, jsondumpfile)
     jsondumpfile.close()
-    print "\n\tJSON Written to File -- " + "VTDL" + md5 + ".json"
+    print "\n\tJSON Written to File -- " + "/VTDL" + md5 + ".json"
 
   if cleandump == True:
-    dumpfile = "VTDL-"+dateParse()+".txt"
+    dumpfile = "./VTDL-"+dateParse()+".txt"
     with open(dumpfile,'a') as df:
       for item in dumpArray:
         line = item.strip('\t\n')
