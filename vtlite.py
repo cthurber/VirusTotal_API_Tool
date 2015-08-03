@@ -169,7 +169,7 @@ def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
         seconds -= 1
       sys.stdout.flush()
       parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
-      count += 1
+      calls += 1
 
 def main():
   opt=argparse.ArgumentParser(description="Search and Download from VirusTotal")
