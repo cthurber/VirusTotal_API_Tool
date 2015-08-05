@@ -147,7 +147,12 @@ def getHashes(mdFile):
 def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
   calls = 0
   for keyhash in hashArray:
-    if calls == 0 or (calls%4) != 0:
+    if calls == len(hashArray):
+      vt = vtAPI()
+      parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
+      print "\n\t Saved output to ./"+dumpfile 
+      return 0
+    elif calls == 0 or (calls%4) != 0:
       vt = vtAPI()
       parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
       calls += 1
@@ -159,7 +164,8 @@ def parseMultipleMDF(hashArray, verbose, jsondump, cleandump):
         time.sleep(1)
         seconds -= 1
       sys.stdout.flush()
-      parseMultipleMDF(hashArray[calls:], verbose, jsondump, cleandump)
+      parse(vt.getReport(keyhash), keyhash, verbose, jsondump, cleandump)
+      calls += 1
 
 def main():
   opt=argparse.ArgumentParser(description="Search and Download from VirusTotal")
