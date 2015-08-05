@@ -87,36 +87,27 @@ def parse(it, md5, verbose, jsondump, cleandump):
     dumpArray.append(notfoundstr)
     return 0
   resultstr = str("\n\tResults for MD5: "+str(it['md5']))
-  detectedstr = str("\n\tDetected by: "+str(it['positives'])+'/'+str(it['total']))
+  detectedstr = str("\tDetected by: "+str(it['positives'])+'/'+str(it['total']))
 
   detectedline = detectedstr+'\n'
   resultsline = resultstr+'\n'
   print resultstr
   print detectedstr
 
-  if 'Sophos' in it['scans']:
-    sophosstr = str("\tSophos Detection:"+str(it['scans']['Sophos']['result']))
-    sophosline = sophosstr+'\n'
-    print sophosstr
-  if 'Kaspersky' in it['scans']:
-    kasperskystr = str('\tKaspersky Detection:'+str(it['scans']['Kaspersky']['result']))
-    kasperskyline = kasperskystr+'\n'
-    print kasperskystr
-  if 'ESET-NOD32' in it['scans']:
-    ESETNODstr = str('\tESET Detection:'+str(it['scans']['ESET-NOD32']['result']))
-    ESETNODline = ESETNODstr+'\n'
-    print ESETNODstr
+  scans = []
+  for scan in it['scans']:
+    if str(it['scans'][scan]['result']) != "None":
+      scanStr = str('\t' + scan + ': ' + str(it['scans'][scan]['result']))
+      scans.append(scanStr)
+    else:
+      print "\t Nothing found from "+scan
 
   scannedonstr = str('\tScanned on:'+str(it['scan_date']))
   print scannedonstr
 
   if int(it['positives']) > 0:
-    dumpArray.append(resultsline)
-    dumpArray.append(detectedstr)
-    dumpArray.append(sophosline)
-    dumpArray.append(kasperskyline)
-    dumpArray.append(ESETNODline)
-    dumpArray.append(scannedonstr)
+    for scanned in scans:
+      dumpArray.append(scanned)
     blank = " "
     dumpArray.append(blank)
 
@@ -126,12 +117,17 @@ def parse(it, md5, verbose, jsondump, cleandump):
     jsondumpfile.close()
     print "\n\tJSON Written to File -- " + "/VTDL" + md5 + ".json"
 
+  spacerLine = '----------------------------------------------------'
   if cleandump == True:
     dumpfile = "./VTDL-"+dateParse()+".txt"
     with open(dumpfile,'a') as df:
+      dumpArray.append(resultsline)
+      dumpArray.append(detectedstr)
+      dumpArray.append(spacerLine)
       for item in dumpArray:
         line = item.strip('\t\n')
-        pprint(line,df)
+        pprint(line.strip("'"),df)
+      dumpArray.append(scannedonstr)
     df.close()
 
   if verbose == True:
