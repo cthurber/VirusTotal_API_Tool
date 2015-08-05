@@ -5,12 +5,14 @@
 # If things are broken let me know chris@xenosec.org
 # No Licence or warranty expressed or implied, use however you wish!
 
-import json, urllib, urllib2, argparse, hashlib, re, sys
+import json, urllib, urllib2, argparse, hashlib, re, sys, os
 from pprint import pprint
 
+homeDirectory = str(os.path.expanduser('~'))
 def keySetup(apikey):
     if len(apikey) == 64:
-        with open('.apikey','w') as keyfile:
+        apiPath = homeDirectory+'/.vt_apikey'
+        with open(apiPath,'w') as keyfile:
             pprint(apikey,keyfile)
         print "\n\tAPI key stored.\n"
     else:
@@ -19,7 +21,8 @@ def keySetup(apikey):
 
 def loadAPIKey():
     try:
-        with open('.apikey','r') as keyfile:
+        apiPath = homeDirectory+'/.vt_apikey'
+        with open(apiPath,'r') as keyfile:
             key = keyfile.readline().strip('\n').strip("''")
             return key
     except:
