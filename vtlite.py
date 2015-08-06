@@ -99,8 +99,6 @@ def parse(it, md5, verbose, jsondump, cleandump):
     if str(it['scans'][scan]['result']) != "None":
       scanStr = str('\t' + scan + ': ' + str(it['scans'][scan]['result']))
       scans.append(scanStr)
-    else:
-      print "\t Nothing found from "+scan
 
   scannedonstr = str('\tScanned on:'+str(it['scan_date']))
   print scannedonstr
